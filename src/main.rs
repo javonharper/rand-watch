@@ -1,21 +1,10 @@
 use rand::prelude::*;
-use reqwest::blocking::Client;
-use serde::{Deserialize, Serialize};
 use std::io;
+use tmdb::{fetch_episode, fetch_season_data, fetch_show_info};
 
-const TOKEN: &str = "";
+mod tmdb;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct TelevisionEpisodeResponse {
-    episode_number: i32,
-    name: String,
-    overview: String,
-    runtime: i32,
-    season_number: i32,
-    id: i32,
-}
-
-struct TelevisionEpisode {
+struct TVEpisode {
     show_name: String,
     season: i32,
     title: String,
@@ -23,41 +12,17 @@ struct TelevisionEpisode {
     description: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct ShowInfoResponse {
-    page: i32,
-    results: Vec<ShowInfo>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TVSeriesDetailsResponse {
-    number_of_episodes: i32,
-    number_of_seasons: i32,
-    seasons: Vec<TVSeriesDetailsSeason>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TVSeriesDetailsSeason {
-    id: i32,
-    season_number: i32,
-    episode_count: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ShowInfo {
-    id: i32,
-    name: String,
-    origin_country: Vec<String>,
-}
-
 #[derive(Debug)]
-struct ShowOption {
+struct TVSeriesOption {
     number: usize,
     label: String,
     value: i32,
 }
 
 fn main() {
+    println!("");
+    println!("");
+
     println!("Welcome to rand-watch");
     println!("Enter a show name to get a random episode");
 
@@ -85,7 +50,6 @@ fn main() {
         .expect("Failed to read line");
     println!("");
 
-    // let show_number = show_number.trim();
     println!(
         "Getting episode data for '{}'",
         options[show_number.trim().parse::<usize>().unwrap() - 1].label
@@ -116,7 +80,7 @@ fn main() {
         random_episode.1,
     );
 
-    let episode = TelevisionEpisode {
+    let episode = TVEpisode {
         show_name: options.first().unwrap().label.clone(),
         season: episode_response.season_number,
         title: episode_response.name,
@@ -131,76 +95,7 @@ fn main() {
     println!("");
 }
 
-fn fetch_show_info(client: &Client, query: &str) -> Vec<ShowOption> {
-    let url = format!(
-        "https://api.themoviedb.org/3/search/tv?query={}&include_adult=false&language=en-US&page=1",
-        query
-    );
-
-    let response: ShowInfoResponse = client
-        .get(&url)
-        .bearer_auth(TOKEN)
-        .header("accept", "application/json")
-        .send()
-        .unwrap()
-        .json()
-        .unwrap();
-
-    let mut options = vec![];
-    for (i, show) in response.results.iter().enumerate().take(5) {
-        options.push(ShowOption {
-            number: i + 1,
-            // TODO: Can I only show country if multiple share the same name?
-            // XXX: Also happens with shows from same country but different year
-            // EG: Married with Children
-            label: format!("{} ({})", show.name.clone(), show.origin_country.join(", ")),
-            value: show.id,
-        })
-    }
-
-    return options;
-}
-
-fn fetch_season_data(client: &Client, id: &i32) -> TVSeriesDetailsResponse {
-    let url = format!("https://api.themoviedb.org/3/tv/{}?language=en-US", id);
-
-    let response: TVSeriesDetailsResponse = client
-        .get(&url)
-        .bearer_auth(TOKEN)
-        .header("accept", "application/json")
-        .send()
-        .unwrap()
-        .json()
-        .unwrap();
-
-    // println!("{:?}", response);
-    return response;
-}
-
-fn fetch_episode(
-    client: &Client,
-    id: &i32,
-    season: i32,
-    episode: i32,
-) -> TelevisionEpisodeResponse {
-    let url = format!(
-        "https://api.themoviedb.org/3/tv/{}/season/{}/episode/{}?language=en-US",
-        id, season, episode
-    );
-
-    let response: TelevisionEpisodeResponse = client
-        .get(&url)
-        .bearer_auth(TOKEN)
-        .header("accept", "application/json")
-        .send()
-        .unwrap()
-        .json()
-        .unwrap();
-
-    return response;
-}
-
-fn print_episode(episode: TelevisionEpisode) {
+fn print_episode(episode: TVEpisode) {
     println!("{}", episode.show_name);
     println!("Season {}", episode.season);
     println!("Episode {} - {}", episode.number, episode.title);
