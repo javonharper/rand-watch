@@ -4,7 +4,7 @@ use tmdb::{fetch_episode, fetch_season_data, fetch_show_info};
 
 mod tmdb;
 
-struct TVEpisode {
+struct TVEpisodeOutput {
     show_name: String,
     season: i32,
     title: String,
@@ -50,16 +50,15 @@ fn main() {
         .expect("Failed to read line");
     println!("");
 
+    let option_value = show_number.trim().parse::<usize>().unwrap();
+
     println!(
         "Getting episode data for '{}'",
-        options[show_number.trim().parse::<usize>().unwrap() - 1].label
+        options[option_value - 1].label
     );
     println!("");
 
-    let season_data = fetch_season_data(
-        &client,
-        &options[show_number.trim().parse::<usize>().unwrap() - 1].value,
-    );
+    let season_data = fetch_season_data(&client, &options[option_value - 1].value);
 
     let mut episodes = vec![];
     for season in season_data.seasons.iter() {
@@ -75,13 +74,13 @@ fn main() {
     let random_episode = episodes.choose(&mut rand::thread_rng()).unwrap();
     let episode_response = fetch_episode(
         &client,
-        &options[show_number.trim().parse::<usize>().unwrap() - 1].value,
+        &options[option_value - 1].value,
         random_episode.0,
         random_episode.1,
     );
 
-    let episode = TVEpisode {
-        show_name: options.first().unwrap().label.clone(),
+    let episode = TVEpisodeOutput {
+        show_name: options[option_value - 1].label.clone(),
         season: episode_response.season_number,
         title: episode_response.name,
         number: episode_response.episode_number,
@@ -95,7 +94,7 @@ fn main() {
     println!("");
 }
 
-fn print_episode(episode: TVEpisode) {
+fn print_episode(episode: TVEpisodeOutput) {
     println!("{}", episode.show_name);
     println!("Season {}", episode.season);
     println!("Episode {} - {}", episode.number, episode.title);
