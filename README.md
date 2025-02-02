@@ -1,4 +1,4 @@
-# Rand-Watch
+# rand-watch
 
 Rand-Watch is a simple command-line tool that helps you decide what to watch by selecting a random episode from your favorite TV shows. Whether you're feeling indecisive or just want to relive a classic moment, Rand-Watch has got you covered.
 
