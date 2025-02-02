@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::TVSeriesOption;
 
-const TOKEN: &str = "";
+const TOKEN: &str = "e";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TVSeriesDetailsSeason {
@@ -17,6 +17,7 @@ pub struct ShowInfo {
     pub id: i32,
     pub name: String,
     pub origin_country: Vec<String>,
+    pub first_air_date: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -103,7 +104,12 @@ pub fn fetch_show_info(client: &Client, query: &str) -> Vec<TVSeriesOption> {
             // TODO: Can I only show country if multiple share the same name?
             // XXX: Also happens with shows from same country but different year
             // EG: Married with Children
-            label: format!("{} ({})", show.name.clone(), show.origin_country.join(", ")),
+            label: format!(
+                "{} ({}) [{}]",
+                show.name.clone(),
+                show.first_air_date.split("-").next().unwrap(),
+                show.origin_country.join(", ")
+            ),
             value: show.id,
         })
     }

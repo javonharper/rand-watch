@@ -20,13 +20,7 @@ struct TVSeriesOption {
 }
 
 fn main() {
-    println!("");
-    println!("");
-
-    println!("Welcome to rand-watch");
-    println!("Enter a show name to get a random episode");
-
-    println!("");
+    print_intro();
     let mut query = String::new();
     let _show = io::stdin()
         .read_line(&mut query)
@@ -39,6 +33,10 @@ fn main() {
     println!("Found {} show(s) for '{}'", options.len(), query.trim());
     for option in options.iter() {
         println!("{}. {}", option.number, option.label);
+    }
+
+    if options.len() == 0 {
+        return;
     }
 
     println!("");
@@ -100,4 +98,14 @@ fn print_episode(episode: TVEpisodeOutput) {
     println!("Episode {} - {}", episode.number, episode.title);
     println!("");
     println!("{}", episode.description);
+}
+
+fn print_intro() {
+    println!("");
+    println!("");
+
+    println!("Welcome to rand-watch");
+    println!("Enter a show name to get a random episode");
+
+    println!("");
 }
