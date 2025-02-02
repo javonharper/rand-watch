@@ -58,7 +58,10 @@ fn main() {
             .read_line(&mut show_number)
             .expect("Failed to read line");
 
-        option_value = show_number.trim().parse::<usize>().unwrap();
+        // Auto-select the first show if user presses enter
+        if show_number != "\n" {
+            option_value = show_number.trim().parse::<usize>().unwrap();
+        }
     }
 
     println!("");
