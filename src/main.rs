@@ -33,7 +33,11 @@ fn main() {
     let client = reqwest::blocking::Client::new();
     let options = fetch_show_info(&client, &query);
 
-    println!("Found {} show(s) for '{}'", options.len(), query.trim());
+    println!(
+        "Found {} show(s) for query '{}'",
+        options.len(),
+        query.trim()
+    );
     for option in options.iter() {
         println!("{}. {}", option.number, option.label);
     }
@@ -42,17 +46,22 @@ fn main() {
         return;
     }
 
-    println!("");
-    println!("Enter the number of the show you want to watch");
-    println!("");
-    let mut show_number = String::new();
-    io::stdin()
-        .read_line(&mut show_number)
-        .expect("Failed to read line");
-    println!("");
+    // Default to the first show if there is only one
+    let mut option_value = 1;
 
-    let option_value = show_number.trim().parse::<usize>().unwrap();
+    if options.len() > 1 {
+        println!("");
+        println!("Enter the number of the show you want to watch");
+        println!("");
+        let mut show_number = String::new();
+        io::stdin()
+            .read_line(&mut show_number)
+            .expect("Failed to read line");
 
+        option_value = show_number.trim().parse::<usize>().unwrap();
+    }
+
+    println!("");
     println!(
         "Getting episode data for '{}'",
         options[option_value - 1].label
