@@ -3,7 +3,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::TVSeriesOption;
 
-const TOKEN: &str = "e";
+fn get_token() -> String {
+    let token = std::env::var("TOKEN").expect("TOKEN must be set.");
+    return token;
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TVSeriesDetailsSeason {
@@ -56,7 +59,7 @@ pub fn fetch_episode(
 
     let response: TelevisionEpisodeResponse = client
         .get(&url)
-        .bearer_auth(TOKEN)
+        .bearer_auth(get_token())
         .header("accept", "application/json")
         .send()
         .unwrap()
@@ -71,7 +74,7 @@ pub fn fetch_season_data(client: &Client, id: &i32) -> TVSeriesDetailsResponse {
 
     let response: TVSeriesDetailsResponse = client
         .get(&url)
-        .bearer_auth(TOKEN)
+        .bearer_auth(get_token())
         .header("accept", "application/json")
         .send()
         .unwrap()
@@ -90,7 +93,7 @@ pub fn fetch_show_info(client: &Client, query: &str) -> Vec<TVSeriesOption> {
 
     let response: ShowInfoResponse = client
         .get(&url)
-        .bearer_auth(TOKEN)
+        .bearer_auth(get_token())
         .header("accept", "application/json")
         .send()
         .unwrap()

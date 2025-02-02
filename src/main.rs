@@ -1,3 +1,4 @@
+use dotenv::dotenv;
 use rand::prelude::*;
 use std::io;
 use tmdb::{fetch_episode, fetch_season_data, fetch_show_info};
@@ -20,6 +21,8 @@ struct TVSeriesOption {
 }
 
 fn main() {
+    dotenv().ok();
+
     print_intro();
     let mut query = String::new();
     let _show = io::stdin()
