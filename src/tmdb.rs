@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
@@ -101,18 +103,43 @@ pub fn fetch_show_info(client: &Client, query: &str) -> Vec<TVSeriesOption> {
         .unwrap();
 
     let mut options = vec![];
+
+    // Get the count of each show name
+    let mut show_name_counts: HashMap<String, usize> = HashMap::new();
+    for (_, show) in response.results.iter().enumerate().take(5) {
+        let count = show_name_counts.entry(show.name.clone()).or_insert(0);
+        *count += 1;
+    }
+
     for (i, show) in response.results.iter().enumerate().take(5) {
+        let basic_label = format!(
+            "{} ({})",
+            show.name.clone(),
+            show.first_air_date.split("-").next().unwrap(),
+        );
+
+        let label_with_country = format!(
+            "{} ({}) [{}]",
+            show.name.clone(),
+            show.first_air_date.split("-").next().unwrap(),
+            show.origin_country.join(", ")
+        );
+
+        let label;
+        if show_name_counts.get(&show.name.clone()).unwrap() > &1 {
+            // If there are multiple shows with the same name, use the one with the country
+            label = label_with_country;
+        } else {
+            // Otherwise, use the basic label
+            label = basic_label;
+        }
+
         options.push(TVSeriesOption {
             number: i + 1,
             // TODO: Can I only show country if multiple share the same name?
             // XXX: Also happens with shows from same country but different year
             // EG: Married with Children
-            label: format!(
-                "{} ({}) [{}]",
-                show.name.clone(),
-                show.first_air_date.split("-").next().unwrap(),
-                show.origin_country.join(", ")
-            ),
+            label: label,
             value: show.id,
         })
     }
