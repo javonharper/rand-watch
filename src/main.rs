@@ -38,9 +38,17 @@ fn main() {
         options.len(),
         query.trim()
     );
+
     for option in options.iter() {
         println!("{}. {}", option.number, option.label);
     }
+
+    // TODO: Can I use pattern matching here?
+    // e.g.
+    // match options.len() {
+    //     0 => return,
+    //     1 => option_value = 1,
+    // }
 
     if options.len() == 0 {
         return;
@@ -62,13 +70,25 @@ fn main() {
         if show_number != "\n" {
             option_value = show_number.trim().parse::<usize>().unwrap();
         }
+
+        if (show_number.trim().parse::<usize>().is_err())
+            || (option_value < 1)
+            || (option_value > options.len())
+        {
+            println!("");
+            println!(
+                "Invalid input '{}'. Please enter a number between 1 and {}",
+                show_number.trim(),
+                options.len()
+            );
+            return;
+        }
     }
 
+    let option = options.get(option_value - 1).unwrap();
+
     println!("");
-    println!(
-        "Getting episode data for '{}'",
-        options[option_value - 1].label
-    );
+    println!("Getting episode data for '{}'", option.label);
     println!("");
 
     let season_data = fetch_season_data(&client, &options[option_value - 1].value);
