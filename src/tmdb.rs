@@ -136,9 +136,7 @@ pub fn fetch_show_info(client: &Client, query: &str) -> Vec<TVSeriesOption> {
 
         options.push(TVSeriesOption {
             number: i + 1,
-            // TODO: Can I only show country if multiple share the same name?
-            // XXX: Also happens with shows from same country but different year
-            // EG: Married with Children
+
             label: label,
             value: show.id,
         })
